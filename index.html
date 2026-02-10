@@ -241,6 +241,27 @@
       border-radius: 8px;
     }
     .note a { color: var(--accent); }
+    .see-all-wrap {
+      padding: 0.5rem 1rem;
+      border-top: 1px solid var(--border);
+      background: rgba(0,0,0,0.2);
+      text-align: right;
+    }
+    .btn-see-all {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 0.35rem 0.5rem;
+      text-decoration: underline;
+      text-underline-offset: 2px;
+    }
+    .btn-see-all:hover { color: var(--text); }
+    .data-view-summary { display: block; }
+    .data-view-full { display: none; }
+    .data-view-full.visible { display: block; }
+    .data-view-summary.hidden { display: none; }
   </style>
 </head>
 <body>
@@ -329,44 +350,117 @@
       return String(v);
     }
 
+    // Summary view: only these columns, in this order. Keys matched case-insensitively, ignoring _ and spaces.
+    const SUMMARY_CONFIG = [
+      { pattern: /^item_?id$/i, label: 'Item ID' },
+      { pattern: /^current_?price$/i, label: 'Current price' },
+      { pattern: /^recommended_?price$/i, label: 'Recommended price' },
+      { pattern: /^action$/i, label: 'Action' },
+      { pattern: /^new_?margin_?pct$/i, label: 'New margin %', asPercent: true },
+      { pattern: /^new_?markup_?pct$/i, label: 'New markup %', asPercent: true }
+    ];
+
+    function normalizeKey(k) {
+      return (k || '').toLowerCase().replace(/[\s_-]+/g, '');
+    }
+
+    function getSummaryColumn(key) {
+      const n = normalizeKey(key);
+      for (let i = 0; i < SUMMARY_CONFIG.length; i++) {
+        if (SUMMARY_CONFIG[i].pattern.test(n)) return { ...SUMMARY_CONFIG[i], rawKey: key };
+      }
+      return null;
+    }
+
+    function formatCellValue(val, asPercent) {
+      if (!asPercent) return renderValue(val);
+      if (val === null || val === undefined) return '—';
+      const num = typeof val === 'number' ? val : parseFloat(val);
+      if (Number.isNaN(num)) return renderValue(val);
+      if (num <= 5 && num >= 0) return (num * 100).toFixed(1) + '%';
+      return num + '%';
+    }
+
     function buildTable(rows) {
       if (!Array.isArray(rows) || rows.length === 0) return '<p class="state empty">No rows to display.</p>';
-      const keys = [...new Set(rows.flatMap(r => Object.keys(r)))];
-      let html = '<table><thead><tr>';
-      keys.forEach(k => {
-        const thCls = isRecommendedPriceKey(k) ? ' highlight-recommended-price' : '';
-        html += '<th class="' + thCls + '">' + escapeHtml(k) + '</th>';
-      });
-      html += '</tr></thead><tbody>';
-      rows.forEach(row => {
-        html += '<tr>';
-        keys.forEach(k => {
-          const val = row[k];
-          const isObj = val !== null && typeof val === 'object';
-          let cls = isObj ? 'cell-json expandable' : 'cell-json';
-          if (isRecommendedPriceKey(k)) cls += ' highlight-recommended-price';
-          html += '<td class="' + cls + '" title="' + escapeHtml(renderValue(val)) + '">' + escapeHtml(renderValue(val)) + '</td>';
+      const allKeys = [...new Set(rows.flatMap(r => Object.keys(r)))];
+      const summaryKeys = [];
+      const order = SUMMARY_CONFIG.map(c => c.pattern);
+      for (let i = 0; i < order.length; i++) {
+        const found = allKeys.find(k => order[i].test(normalizeKey(k)));
+        if (found) summaryKeys.push(found);
+      }
+      const hasSummary = summaryKeys.length > 0;
+      const displayKeys = hasSummary ? summaryKeys : allKeys;
+
+      function renderTable(keysToShow, useSummaryFormat) {
+        let html = '<table><thead><tr>';
+        keysToShow.forEach(k => {
+          const summaryCol = getSummaryColumn(k);
+          const label = useSummaryFormat && summaryCol ? summaryCol.label : k;
+          const thCls = isRecommendedPriceKey(k) ? ' highlight-recommended-price' : '';
+          html += '<th class="' + thCls + '">' + escapeHtml(label) + '</th>';
         });
-        html += '</tr>';
-      });
-      html += '</tbody></table>';
-      return html;
+        html += '</tr></thead><tbody>';
+        rows.forEach(row => {
+          html += '<tr>';
+          keysToShow.forEach(k => {
+            const val = row[k];
+            const summaryCol = useSummaryFormat ? getSummaryColumn(k) : null;
+            const displayVal = summaryCol && summaryCol.asPercent ? formatCellValue(val, true) : renderValue(val);
+            const isObj = val !== null && typeof val === 'object';
+            let cls = isObj ? 'cell-json expandable' : 'cell-json';
+            if (isRecommendedPriceKey(k)) cls += ' highlight-recommended-price';
+            html += '<td class="' + cls + '" title="' + escapeHtml(renderValue(val)) + '">' + escapeHtml(displayVal) + '</td>';
+          });
+          html += '</tr>';
+        });
+        html += '</tbody></table>';
+        return html;
+      }
+
+      const summaryTable = renderTable(displayKeys, hasSummary);
+      const fullTable = renderTable(allKeys, false);
+      const showSeeAll = hasSummary && allKeys.length > summaryKeys.length;
+      const seeAllHtml = showSeeAll ? '<div class="see-all-wrap"><button type="button" class="btn-see-all" data-toggle="see-all" aria-label="Show all columns">See all</button></div>' : '';
+      return '<div class="data-view-summary" id="dataViewSummary">' + summaryTable + '</div>' +
+        '<div class="data-view-full" id="dataViewFull">' + fullTable + '</div>' +
+        seeAllHtml;
     }
 
     function buildCards(items) {
       if (!Array.isArray(items) || items.length === 0) return '<p class="state empty">No items.</p>';
-      let html = '<div class="cards-grid">';
-      items.forEach((item, i) => {
-        const entries = Object.entries(item);
-        html += '<div class="item-card"><h3>Item ' + (i + 1) + '</h3><ul class="kv-list">';
-        entries.forEach(([k, v]) => {
-          const liCls = isRecommendedPriceKey(k) ? ' highlight-recommended-price' : '';
-          html += '<li class="' + liCls + '"><span class="k">' + escapeHtml(k) + '</span><span class="v">' + escapeHtml(renderValue(v)) + '</span></li>';
+      const allKeys = [...new Set(items.flatMap(item => Object.keys(item)))];
+      const summaryKeys = SUMMARY_CONFIG.map(c => allKeys.find(k => c.pattern.test(normalizeKey(k)))).filter(Boolean);
+      const hasSummary = summaryKeys.length > 0;
+      const displayKeys = hasSummary ? summaryKeys : allKeys;
+
+      function renderCards(keysToShow, useSummaryFormat) {
+        let html = '<div class="cards-grid">';
+        items.forEach((item, i) => {
+          html += '<div class="item-card"><h3>Item ' + (i + 1) + '</h3><ul class="kv-list">';
+          keysToShow.forEach(k => {
+            if (!(k in item)) return;
+            const v = item[k];
+            const summaryCol = useSummaryFormat ? getSummaryColumn(k) : null;
+            const label = useSummaryFormat && summaryCol ? summaryCol.label : k;
+            const displayVal = summaryCol && summaryCol.asPercent ? formatCellValue(v, true) : renderValue(v);
+            const liCls = isRecommendedPriceKey(k) ? ' highlight-recommended-price' : '';
+            html += '<li class="' + liCls + '"><span class="k">' + escapeHtml(label) + '</span><span class="v">' + escapeHtml(displayVal) + '</span></li>';
+          });
+          html += '</ul></div>';
         });
-        html += '</ul></div>';
-      });
-      html += '</div>';
-      return html;
+        html += '</div>';
+        return html;
+      }
+
+      const summaryCards = renderCards(displayKeys, hasSummary);
+      const fullCards = renderCards(allKeys, false);
+      const showSeeAll = hasSummary && allKeys.length > summaryKeys.length;
+      const seeAllHtml = showSeeAll ? '<div class="see-all-wrap"><button type="button" class="btn-see-all" data-toggle="see-all" aria-label="Show all columns">See all</button></div>' : '';
+      return '<div class="data-view-summary" id="dataViewSummary">' + summaryCards + '</div>' +
+        '<div class="data-view-full" id="dataViewFull">' + fullCards + '</div>' +
+        seeAllHtml;
     }
 
     function buildObjectView(obj) {
@@ -453,6 +547,26 @@
     rawBtn.addEventListener('click', () => {
       if (lastData !== null) showRaw(typeof lastData === 'string' ? lastData : JSON.stringify(lastData, null, 2));
       else setState('empty', 'Fetch data first, then use Show raw JSON.');
+    });
+
+    output.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-toggle="see-all"]');
+      if (!btn) return;
+      const summaryEl = document.getElementById('dataViewSummary');
+      const fullEl = document.getElementById('dataViewFull');
+      if (!summaryEl || !fullEl) return;
+      const showingFull = fullEl.classList.contains('visible');
+      if (showingFull) {
+        fullEl.classList.remove('visible');
+        summaryEl.classList.remove('hidden');
+        btn.textContent = 'See all';
+        btn.setAttribute('aria-label', 'Show all columns');
+      } else {
+        summaryEl.classList.add('hidden');
+        fullEl.classList.add('visible');
+        btn.textContent = 'Show less';
+        btn.setAttribute('aria-label', 'Show summary only');
+      }
     });
 
     autoRefresh.addEventListener('change', () => {
