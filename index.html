@@ -352,7 +352,7 @@
 
     // Summary view: only these columns, in this order. Keys matched case-insensitively, ignoring _ and spaces.
     const SUMMARY_CONFIG = [
-      { pattern: /^item_?id$/i, label: 'Item ID' },
+      { pattern: /^(item_?description|description)$/i, label: 'Item description' },
       { pattern: /^current_?price$/i, label: 'Current price' },
       { pattern: /^recommended_?price$/i, label: 'Recommended price' },
       { pattern: /^action$/i, label: 'Action' },
