@@ -356,8 +356,9 @@
       { pattern: /^current_?price$/i, label: 'Current price' },
       { pattern: /^recommended_?price$/i, label: 'Recommended price' },
       { pattern: /^action$/i, label: 'Action' },
-      { pattern: /^new_?margin_?pct$/i, label: 'New margin %', asPercent: true },
-      { pattern: /^new_?markup_?pct$/i, label: 'New markup %', asPercent: true }
+      { pattern: /^price_?delta$/i, label: 'Price delta' },
+      { pattern: /^(margin_?delta|delta_?margin)(_?pct)?$/i, label: 'Margin delta', asPercent: true },
+      { pattern: /^(markup_?delta|delta_?markup)(_?pct)?$/i, label: 'Markup delta', asPercent: true }
     ];
 
     function normalizeKey(k) {
