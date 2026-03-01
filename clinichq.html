@@ -3,19 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>n8n Webhook Data Viewer</title>
+  <title>CLINICIQ</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #0f0f12;
-      --surface: #18181c;
-      --border: #2a2a30;
+      --bg: #0c1445;
+      --surface: #151c3d;
+      --border: #2a3560;
       --text: #e4e4e7;
-      --text-muted: #71717a;
-      --accent: #22c55e;
-      --accent-dim: #16a34a;
+      --text-muted: #94a3b8;
+      --accent: #2dd4bf;
+      --accent-dim: #14b8a6;
       --danger: #ef4444;
       --warn: #eab308;
     }
@@ -43,15 +43,22 @@
       padding-bottom: 1rem;
       border-bottom: 1px solid var(--border);
     }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .brand img {
+      height: 40px;
+      width: auto;
+      display: block;
+    }
     h1 {
       font-size: 1.35rem;
       font-weight: 600;
       margin: 0;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
+      color: var(--text);
     }
-    h1 span.icon { font-size: 1.5rem; }
     .controls {
       display: flex;
       align-items: center;
@@ -76,7 +83,7 @@
     input[type="url"]:focus {
       outline: none;
       border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
+      box-shadow: 0 0 0 2px rgba(45, 212, 191, 0.25);
     }
     input[type="url"]::placeholder { color: var(--text-muted); }
     .btn {
@@ -92,7 +99,7 @@
     .btn:active { transform: scale(0.98); }
     .btn-primary {
       background: var(--accent);
-      color: #0a0a0a;
+      color: #0c1445;
     }
     .btn-primary:hover { background: var(--accent-dim); }
     .btn-secondary {
@@ -100,7 +107,35 @@
       color: var(--text);
       border: 1px solid var(--border);
     }
-    .btn-secondary:hover { background: #222228; }
+    .btn-secondary:hover { background: #1e2747; }
+    .btn-approve {
+      background: var(--accent);
+      color: #0c1445;
+    }
+    .btn-approve:hover:not(:disabled) { background: var(--accent-dim); }
+    .btn-reject {
+      background: var(--danger);
+      color: #fff;
+    }
+    .btn-reject:hover:not(:disabled) { background: #dc2626; }
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .row-actions {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 0.35rem;
+      flex-wrap: nowrap;
+      white-space: nowrap;
+      width: 1%;
+    }
+    .row-actions .btn {
+      padding: 0.3rem 0.5rem;
+      font-size: 0.75rem;
+      flex-shrink: 0;
+    }
     .refresh-wrap {
       display: flex;
       align-items: center;
@@ -159,7 +194,7 @@
       letter-spacing: 0.05em;
     }
     tr:last-child td { border-bottom: none; }
-    tr:hover td { background: rgba(255,255,255,0.02); }
+    tr:hover td { background: rgba(255,255,255,0.04); }
     .cell-json {
       font-family: 'JetBrains Mono', monospace;
       font-size: 0.8rem;
@@ -216,13 +251,13 @@
       max-height: 70vh;
       overflow: auto;
     }
-    .raw-json .key { color: #93c5fd; }
-    .raw-json .str { color: #86efac; }
-    .raw-json .num { color: #fcd34d; }
+    .raw-json .key { color: #7dd3fc; }
+    .raw-json .str { color: #99f6e4; }
+    .raw-json .num { color: #fde047; }
     .raw-json .bool { color: #f472b6; }
     .raw-json .null { color: var(--text-muted); }
     .highlight-recommended-price {
-      background: rgba(34, 197, 94, 0.18);
+      background: rgba(45, 212, 191, 0.15);
       border: 1px solid var(--accent);
       border-radius: 6px;
       padding: 0.25rem 0.5rem;
@@ -230,14 +265,14 @@
       color: var(--accent);
     }
     th.highlight-recommended-price,
-    td.highlight-recommended-price { background: rgba(34, 197, 94, 0.12); }
+    td.highlight-recommended-price { background: rgba(45, 212, 191, 0.1); }
     .kv-list li.highlight-recommended-price .v { color: var(--accent); font-weight: 600; }
     .note {
       font-size: 0.8rem;
       color: var(--text-muted);
       margin-top: 1rem;
       padding: 0.75rem;
-      background: rgba(255,255,255,0.03);
+      background: rgba(255,255,255,0.04);
       border-radius: 8px;
     }
     .note a { color: var(--accent); }
@@ -262,18 +297,46 @@
     .data-view-full { display: none; }
     .data-view-full.visible { display: block; }
     .data-view-summary.hidden { display: none; }
+    .revenue-summary {
+      display: none;
+      background: rgba(45, 212, 191, 0.12);
+      border: 1px solid var(--accent);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      margin-bottom: 1rem;
+      align-items: center;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+    .revenue-summary.visible { display: flex; }
+    .revenue-summary .label {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+    .revenue-summary .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--accent);
+      font-family: 'JetBrains Mono', monospace;
+    }
   </style>
 </head>
 <body>
   <div class="container">
     <header>
-      <h1><span class="icon">◇</span> Webhook Data Viewer</h1>
+      <div class="brand">
+        <img src="cliniciq-logo.png" alt="CLINICIQ" />
+        <h1>CLINICIQ</h1>
+      </div>
       <div class="controls">
         <div class="url-wrap">
           <input type="url" id="url" placeholder="https://your-n8n.app/webhook/..." value="https://jackwilde.app.n8n.cloud/webhook/01f57583-f041-45e2-816a-e9e08c200eae" />
         </div>
-        <button type="button" class="btn btn-primary" id="fetchBtn">Fetch data</button>
+        <button type="button" class="btn btn-primary" id="fetchBtn">Refresh data</button>
         <button type="button" class="btn btn-secondary" id="rawBtn">Show raw JSON</button>
+        <button type="button" class="btn btn-approve" id="approveBtn" disabled>Approve</button>
+        <button type="button" class="btn btn-reject" id="rejectBtn" disabled>Reject</button>
         <div class="refresh-wrap">
           <input type="checkbox" id="autoRefresh" />
           <label for="autoRefresh">Auto-refresh (30s)</label>
@@ -283,16 +346,21 @@
 
     <p class="meta" id="meta"></p>
 
+    <div class="revenue-summary card" id="revenueSummary">
+      <span class="label">Estimated gained revenue</span>
+      <span class="value" id="revenueValue">—</span>
+    </div>
+
     <div class="card" id="contentCard">
       <div class="state" id="state">
-        Click <strong>Fetch data</strong> to load from the webhook. Make sure your n8n workflow responds to <strong>GET</strong> if you want to pull data here.
+        Data loads automatically when the page opens. Use <strong>Refresh data</strong> to fetch again. Make sure your n8n workflow responds to <strong>GET</strong> if you want to pull data here.
       </div>
       <div id="output" class="table-wrap" style="display: none;"></div>
       <div id="rawOutput" class="raw-json" style="display: none;"></div>
     </div>
 
     <p class="note">
-      This page sends a <strong>GET</strong> request to the URL. If your webhook only accepts POST, configure an n8n workflow that runs on GET and returns the data you want to display, or use a separate “read” endpoint that returns JSON.
+      This page sends a <strong>GET</strong> request to the URL. If your webhook only accepts POST, configure an n8n workflow that runs on GET and returns the data you want to display, or use a separate "read" endpoint that returns JSON.
     </p>
   </div>
 
@@ -306,6 +374,10 @@
     const output = document.getElementById('output');
     const rawOutput = document.getElementById('rawOutput');
     const contentCard = document.getElementById('contentCard');
+    const revenueSummary = document.getElementById('revenueSummary');
+    const revenueValue = document.getElementById('revenueValue');
+    const approveBtn = document.getElementById('approveBtn');
+    const rejectBtn = document.getElementById('rejectBtn');
 
     let lastData = null;
     let refreshTimer = null;
@@ -316,6 +388,13 @@
       state.style.display = 'block';
       output.style.display = 'none';
       rawOutput.style.display = 'none';
+      revenueSummary.classList.remove('visible');
+      setApproveRejectEnabled(false);
+    }
+
+    function setApproveRejectEnabled(enabled) {
+      approveBtn.disabled = !enabled;
+      rejectBtn.disabled = !enabled;
     }
 
     function showOutput(html) {
@@ -323,6 +402,7 @@
       rawOutput.style.display = 'none';
       output.innerHTML = html;
       output.style.display = 'block';
+      setApproveRejectEnabled(true);
     }
 
     function showRaw(jsonStr) {
@@ -330,6 +410,7 @@
       output.style.display = 'none';
       rawOutput.innerHTML = syntaxHighlight(jsonStr);
       rawOutput.style.display = 'block';
+      setApproveRejectEnabled(lastData !== null);
     }
 
     function syntaxHighlight(str) {
@@ -373,16 +454,61 @@
       return String(v);
     }
 
-    // Summary view: only these columns, in this order. Keys matched case-insensitively, ignoring _ and spaces.
+    const ESTIMATED_GAINED_REVENUE_PATTERN = /estimated.*(gained.*)?revenue/i;
+
     const SUMMARY_CONFIG = [
       { pattern: /^(item_?description|description)$/i, label: 'Item description' },
       { pattern: /^current_?price$/i, label: 'Current price' },
       { pattern: /^recommended_?price$/i, label: 'Recommended price' },
       { pattern: /^action$/i, label: 'Action' },
       { pattern: /^price_?delta$/i, label: 'Price delta' },
+      { pattern: ESTIMATED_GAINED_REVENUE_PATTERN, label: 'Estimated gained revenue' },
       { pattern: /^(margin_?delta|delta_?margin)(_?pct)?$/i, label: 'Margin delta', asPercent: true },
       { pattern: /^(markup_?delta|delta_?markup)(_?pct)?$/i, label: 'Markup delta', asPercent: true }
     ];
+
+    function findEstimatedGainedRevenueKey(obj) {
+      if (!obj || typeof obj !== 'object') return null;
+      for (const k of Object.keys(obj)) {
+        if (ESTIMATED_GAINED_REVENUE_PATTERN.test(k)) return k;
+      }
+      return null;
+    }
+
+    function getEstimatedGainedRevenue(data) {
+      if (data == null) return null;
+      if (Array.isArray(data)) {
+        const key = data.length && typeof data[0] === 'object' ? findEstimatedGainedRevenueKey(data[0]) : null;
+        if (!key) return null;
+        let sum = 0;
+        for (const row of data) {
+          const v = row[key];
+          if (typeof v === 'number' && !Number.isNaN(v)) sum += v;
+          else if (v != null) { const n = parseFloat(v); if (!Number.isNaN(n)) sum += n; }
+        }
+        return sum;
+      }
+      const key = findEstimatedGainedRevenueKey(data);
+      if (!key) return null;
+      const v = data[key];
+      if (typeof v === 'number' && !Number.isNaN(v)) return v;
+      if (v != null) { const n = parseFloat(v); if (!Number.isNaN(n)) return n; }
+      return null;
+    }
+
+    function formatRevenue(val) {
+      if (val == null || (typeof val === 'number' && Number.isNaN(val))) return '—';
+      const num = typeof val === 'number' ? val : parseFloat(val);
+      if (Number.isNaN(num)) return '—';
+      return '$' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function updateRevenueSummary(data) {
+      const rev = getEstimatedGainedRevenue(data);
+      revenueValue.textContent = formatRevenue(rev);
+      if (rev != null) revenueSummary.classList.add('visible');
+      else revenueSummary.classList.remove('visible');
+    }
 
     function normalizeKey(k) {
       return (k || '').toLowerCase().replace(/[\s_-]+/g, '');
@@ -425,9 +551,9 @@
           const thCls = isRecommendedPriceKey(k) ? ' highlight-recommended-price' : '';
           html += '<th class="' + thCls + '">' + escapeHtml(label) + '</th>';
         });
-        html += '</tr></thead><tbody>';
-        rows.forEach(row => {
-          html += '<tr>';
+        html += '<th>Actions</th></tr></thead><tbody>';
+        rows.forEach((row, rowIndex) => {
+          html += '<tr data-row-index="' + rowIndex + '">';
           keysToShow.forEach(k => {
             const val = row[k];
             const summaryCol = useSummaryFormat ? getSummaryColumn(k) : null;
@@ -437,6 +563,7 @@
             if (isRecommendedPriceKey(k)) cls += ' highlight-recommended-price';
             html += '<td class="' + cls + '" title="' + escapeHtml(renderValue(val)) + '">' + escapeHtml(displayVal) + '</td>';
           });
+          html += '<td class="row-actions"><button type="button" class="btn btn-approve" data-action="approve" data-row-index="' + rowIndex + '">Approve</button><button type="button" class="btn btn-reject" data-action="reject" data-row-index="' + rowIndex + '">Reject</button></td>';
           html += '</tr>';
         });
         html += '</tbody></table>';
@@ -508,9 +635,7 @@
     function isRecommendedPriceKey(key) {
       if (!key || typeof key !== 'string') return false;
       const k = key.toLowerCase().replace(/[\s_-]+/g, ' ');
-      // Literal "recommended price" style keys
       if (k.includes('recommended') && (k.includes('price') || k.includes('margin') || k.includes('markup'))) return true;
-      // "New" margin/markup/price columns (recommended values)
       if (k.includes('new') && (k.includes('margin') || k.includes('markup') || k.includes('price'))) return true;
       return false;
     }
@@ -559,6 +684,7 @@
           return;
         }
 
+        updateRevenueSummary(data);
         showOutput(decideView(data));
       } catch (err) {
         meta.textContent = '';
@@ -567,13 +693,76 @@
       }
     }
 
+    async function sendAction(action) {
+      const url = urlInput.value.trim();
+      if (!url || lastData === null) return;
+      approveBtn.disabled = true;
+      rejectBtn.disabled = true;
+      const prevMeta = meta.innerHTML;
+      meta.innerHTML = 'Sending <strong>' + action + '</strong>…';
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: action, data: lastData })
+        });
+        const text = await res.text();
+        if (res.ok) {
+          meta.innerHTML = 'Last action: <strong>' + action + '</strong> at ' + new Date().toLocaleString() + ' — Status: <strong>' + res.status + '</strong>';
+          fetchData();
+        } else {
+          meta.innerHTML = 'Action failed: <strong>' + res.status + ' ' + res.statusText + '</strong>' + (text ? ' — ' + escapeHtml(text.slice(0, 200)) : '');
+          setApproveRejectEnabled(true);
+        }
+      } catch (err) {
+        meta.innerHTML = 'Could not send: <strong>' + escapeHtml(err.message || String(err)) + '</strong>';
+        setApproveRejectEnabled(true);
+      }
+    }
+
     fetchBtn.addEventListener('click', fetchData);
     rawBtn.addEventListener('click', () => {
       if (lastData !== null) showRaw(typeof lastData === 'string' ? lastData : JSON.stringify(lastData, null, 2));
-      else setState('empty', 'Fetch data first, then use Show raw JSON.');
+      else setState('empty', 'Refresh data first, then use Show raw JSON.');
     });
+    approveBtn.addEventListener('click', () => sendAction('approve'));
+    rejectBtn.addEventListener('click', () => sendAction('reject'));
+
+    async function sendRowAction(action, rowIndex) {
+      if (!Array.isArray(lastData) || lastData[rowIndex] === undefined) return;
+      const row = lastData[rowIndex];
+      const url = urlInput.value.trim();
+      if (!url) return;
+      const actionBtns = output.querySelectorAll('[data-action="approve"][data-row-index="' + rowIndex + '"], [data-action="reject"][data-row-index="' + rowIndex + '"]');
+      actionBtns.forEach(b => { b.disabled = true; });
+      const prevMeta = meta.innerHTML;
+      meta.innerHTML = 'Sending <strong>' + action + '</strong> for row ' + (rowIndex + 1) + '…';
+      try {
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: action, rowIndex: rowIndex, row: row, data: lastData })
+        });
+        const text = await res.text();
+        if (res.ok) {
+          meta.innerHTML = 'Row ' + (rowIndex + 1) + ': <strong>' + action + '</strong> at ' + new Date().toLocaleString() + ' — Status: <strong>' + res.status + '</strong>';
+          fetchData();
+        } else {
+          meta.innerHTML = 'Action failed: <strong>' + res.status + ' ' + res.statusText + '</strong>' + (text ? ' — ' + escapeHtml(text.slice(0, 200)) : '');
+          actionBtns.forEach(b => { b.disabled = false; });
+        }
+      } catch (err) {
+        meta.innerHTML = 'Could not send: <strong>' + escapeHtml(err.message || String(err)) + '</strong>';
+        actionBtns.forEach(b => { b.disabled = false; });
+      }
+    }
 
     output.addEventListener('click', (e) => {
+      const rowActionBtn = e.target.closest('[data-action="approve"], [data-action="reject"]');
+      if (rowActionBtn && rowActionBtn.dataset.rowIndex !== undefined) {
+        sendRowAction(rowActionBtn.dataset.action, parseInt(rowActionBtn.dataset.rowIndex, 10));
+        return;
+      }
       const btn = e.target.closest('[data-toggle="see-all"]');
       if (!btn) return;
       const summaryEl = document.getElementById('dataViewSummary');
@@ -599,6 +788,9 @@
     });
 
     urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchData(); });
+
+    // Auto-fetch when the page loads
+    fetchData();
   </script>
 </body>
 </html>
