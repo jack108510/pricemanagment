@@ -37,8 +37,8 @@
     /* ===== NEW: SaaS dashboard layout (sidebar + views) ===== */
     .app-container { display: flex; min-height: 100vh; width: 100%; }
     .sidebar { width: 240px; flex: 0 0 240px; background: rgba(0,0,0,0.18); border-right: 1px solid var(--border); padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 1.25rem; }
-    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
-    .sidebar-brand img { height: 36px; width: auto; display: block; }
+    .sidebar-brand { display: flex; align-items: center; justify-content: center; padding-bottom: 1rem; border-bottom: 1px solid var(--border); isolation: isolate; }
+    .sidebar-brand img { height: 84px; width: auto; display: block; background: transparent; mix-blend-mode: screen; }
     .sidebar-brand .title { font-size: 1rem; font-weight: 700; color: var(--text); letter-spacing: 0.02em; }
     .nav { display: flex; flex-direction: column; gap: 0.25rem; }
     .nav a { text-decoration: none; color: var(--text-muted); padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid transparent; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none; }
@@ -105,6 +105,21 @@
     .project-card .project-desc { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
     .project-view { display: none; }
     .project-view.active { display: block; }
+
+    .microbursts-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 320px); gap: 0.9rem; align-items: start; }
+    .side-rail { display: grid; gap: 0.9rem; }
+    .rail-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; }
+    .rail-title { margin: 0 0 0.75rem 0; font-size: 0.95rem; font-weight: 800; color: var(--text); }
+    .metric-row { display: flex; justify-content: space-between; gap: 0.75rem; padding: 0.45rem 0; border-bottom: 1px solid var(--border); color: var(--text-muted); font-size: 0.85rem; min-width: 0; }
+    .metric-row:last-child { border-bottom: none; }
+    .metric-row span { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .metric-row strong { color: var(--text); font-family: 'JetBrains Mono', monospace; font-weight: 700; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+    .rail-card { min-width: 0; }
+
+    @media (max-width: 1024px) {
+      .microbursts-layout { grid-template-columns: 1fr; }
+    }
 
     @media (max-width: 1024px) {
       .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
@@ -416,7 +431,6 @@
     <aside class="sidebar" id="sidebar">
       <div class="sidebar-brand">
         <img src="cliniciq-logo.png" alt="CLINICIQ" />
-        <div class="title">CLINICIQ</div>
       </div>
 
       <nav class="nav" id="sidebarNav">
@@ -604,12 +618,29 @@
 
             <div id="microbursts-page" class="subpage">
               <!-- ===== NEW: Microbursts page wrapper (existing logic preserved) ===== -->
-              <div class="card" id="contentCard">
-                <div class="state" id="state">
-                  Data loads automatically when the page opens. Use <strong>Refresh data</strong> to fetch again. Make sure your n8n workflow responds to <strong>GET</strong> if you want to pull data here.
+              <div class="microbursts-layout">
+                <div>
+                  <div class="card" id="contentCard">
+                    <div class="section-header" style="padding: 1rem 1rem 0 1rem; margin-bottom: 0; border-bottom: none;">
+                      <h3 class="section-title">Approvals</h3>
+                    </div>
+                    <div class="state" id="state">
+                      Data loads automatically when the page opens. Use <strong>Refresh data</strong> to fetch again. Make sure your n8n workflow responds to <strong>GET</strong> if you want to pull data here.
+                    </div>
+                    <div id="output" class="table-wrap" style="display: none;"></div>
+                    <div id="rawOutput" class="raw-json" style="display: none;"></div>
+                  </div>
                 </div>
-                <div id="output" class="table-wrap" style="display: none;"></div>
-                <div id="rawOutput" class="raw-json" style="display: none;"></div>
+
+                <aside class="side-rail" aria-label="Microbursts side rail">
+                  <div class="rail-card" id="microburstsAnalyticsCard">
+                    <h3 class="rail-title">Analytics</h3>
+                    <div class="metric-row"><span>Potential gained revenue</span><strong id="mbIncreasedRevenue">—</strong></div>
+                    <div class="metric-row"><span>Items affected</span><strong id="mbItemsAffected">—</strong></div>
+                    <div class="metric-row"><span>Pending approvals</span><strong id="mbPendingApprovals">—</strong></div>
+                    <div class="metric-row"><span>Last updated</span><strong id="mbLastUpdated">—</strong></div>
+                  </div>
+                </aside>
               </div>
             </div>
 
@@ -633,6 +664,19 @@
           <div id="project-purchasing" class="project-view" data-project-view="purchasing">
             <div class="card">
               <div class="state empty">Alternative Purchasing project is coming soon.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <h3 class="section-title">Campaign Log</h3>
+            <button type="button" class="btn btn-secondary" id="campaignLogClearBtn">Clear</button>
+          </div>
+          <div class="card">
+            <div class="state empty" id="campaignLogEmpty">No activity yet.</div>
+            <div class="table-wrap" id="campaignLogWrap" style="display:none; padding: 1rem;">
+              <ul class="panel-list" id="campaignLogList"></ul>
             </div>
           </div>
         </div>
@@ -688,8 +732,82 @@
 
     const projectsGrid = document.getElementById('projectsGrid');
 
+    const mbIncreasedRevenue = document.getElementById('mbIncreasedRevenue');
+    const mbItemsAffected = document.getElementById('mbItemsAffected');
+    const mbPendingApprovals = document.getElementById('mbPendingApprovals');
+    const mbLastUpdated = document.getElementById('mbLastUpdated');
+
+    const campaignLogClearBtn = document.getElementById('campaignLogClearBtn');
+    const campaignLogEmpty = document.getElementById('campaignLogEmpty');
+    const campaignLogWrap = document.getElementById('campaignLogWrap');
+    const campaignLogList = document.getElementById('campaignLogList');
+
     let lastData = null;
     let refreshTimer = null;
+    let currentPage = 0;
+    const PAGE_SIZE = 10;
+
+    const CAMPAIGN_LOG_KEY = 'cliniciq_campaign_log_v1';
+    const CAMPAIGN_LOG_MAX = 100;
+
+    function loadCampaignLog() {
+      try {
+        const raw = localStorage.getItem(CAMPAIGN_LOG_KEY);
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function saveCampaignLog(entries) {
+      try {
+        localStorage.setItem(CAMPAIGN_LOG_KEY, JSON.stringify(entries));
+      } catch {
+        // ignore
+      }
+    }
+
+    function renderCampaignLog() {
+      if (!campaignLogEmpty || !campaignLogWrap || !campaignLogList) return;
+      const entries = loadCampaignLog();
+      if (!entries.length) {
+        campaignLogEmpty.style.display = 'block';
+        campaignLogWrap.style.display = 'none';
+        campaignLogList.innerHTML = '';
+        return;
+      }
+      campaignLogEmpty.style.display = 'none';
+      campaignLogWrap.style.display = 'block';
+      campaignLogList.innerHTML = '';
+      entries.forEach(e => {
+        const li = document.createElement('li');
+        const left = document.createElement('span');
+        left.className = 'primary';
+        left.textContent = e.message;
+        const right = document.createElement('span');
+        right.textContent = e.time;
+        li.appendChild(left);
+        li.appendChild(right);
+        campaignLogList.appendChild(li);
+      });
+    }
+
+    function addCampaignLog(message) {
+      const entries = loadCampaignLog();
+      const time = new Date().toLocaleString();
+      entries.unshift({ message, time });
+      if (entries.length > CAMPAIGN_LOG_MAX) entries.length = CAMPAIGN_LOG_MAX;
+      saveCampaignLog(entries);
+      renderCampaignLog();
+    }
+
+    if (campaignLogClearBtn) {
+      campaignLogClearBtn.addEventListener('click', () => {
+        saveCampaignLog([]);
+        renderCampaignLog();
+      });
+    }
 
     /* ===== NEW: Minimal JS view switching ===== */
     function showView(viewId) {
@@ -775,6 +893,28 @@
         if (!card) return;
         showCampaignProject(card.getAttribute('data-project'));
       });
+    }
+
+    function updateMicroburstsSideRail(data) {
+      const rows = Array.isArray(data) ? data : (data && typeof data === 'object' ? [data] : []);
+      const potential = getEstimatedGainedRevenue(rows);
+      const pendingCount = rows.length;
+
+      if (mbIncreasedRevenue) mbIncreasedRevenue.textContent = potential == null ? '—' : formatRevenue(potential);
+      if (mbItemsAffected) mbItemsAffected.textContent = pendingCount ? String(pendingCount.toLocaleString('en-US')) : '—';
+      if (mbPendingApprovals) mbPendingApprovals.textContent = pendingCount ? String(pendingCount.toLocaleString('en-US')) : '—';
+      if (mbLastUpdated) {
+        mbLastUpdated.textContent = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+      }
+    }
+
+    function getRowDescription(row) {
+      if (!row || typeof row !== 'object') return 'Item';
+      const descKey = Object.keys(row).find(k => normalizeKey(k) === 'itemdescription') ||
+        Object.keys(row).find(k => normalizeKey(k) === 'description');
+      if (!descKey) return 'Item';
+      const v = row[descKey];
+      return v == null ? 'Item' : String(v);
     }
 
     function setState(type, message) {
@@ -870,24 +1010,39 @@
       return null;
     }
 
+    function parseLooseNumber(val) {
+      if (val === null || val === undefined) return NaN;
+      if (typeof val === 'number') return val;
+      if (typeof val !== 'string') return NaN;
+      const s = val.trim();
+      if (!s) return NaN;
+      const cleaned = s.replace(/[^0-9.+-]/g, '');
+      const num = parseFloat(cleaned);
+      return Number.isNaN(num) ? NaN : num;
+    }
+
     function getEstimatedGainedRevenue(data) {
       if (data == null) return null;
       if (Array.isArray(data)) {
-        const key = data.length && typeof data[0] === 'object' ? findEstimatedGainedRevenueKey(data[0]) : null;
-        if (!key) return null;
         let sum = 0;
+        let foundAny = false;
         for (const row of data) {
-          const v = row[key];
-          if (typeof v === 'number' && !Number.isNaN(v)) sum += v;
-          else if (v != null) { const n = parseFloat(v); if (!Number.isNaN(n)) sum += n; }
+          if (!row || typeof row !== 'object') continue;
+          const key = findEstimatedGainedRevenueKey(row);
+          if (!key) continue;
+          const n = parseLooseNumber(row[key]);
+          if (!Number.isNaN(n)) {
+            sum += n;
+            foundAny = true;
+          }
         }
-        return sum;
+        return foundAny ? sum : null;
       }
       const key = findEstimatedGainedRevenueKey(data);
       if (!key) return null;
       const v = data[key];
-      if (typeof v === 'number' && !Number.isNaN(v)) return v;
-      if (v != null) { const n = parseFloat(v); if (!Number.isNaN(n)) return n; }
+      const n = parseLooseNumber(v);
+      if (!Number.isNaN(n)) return n;
       return null;
     }
 
@@ -920,6 +1075,8 @@
 
       let pendingApprovals = 0;
       const reviewItems = [];
+      let pendingPotentialRevenue = 0;
+      let hasPendingPotentialRevenue = false;
 
       for (const row of rows) {
         if (!row || typeof row !== 'object') continue;
@@ -940,7 +1097,18 @@
 
         if (pct != null && pct > 0.05) {
           pendingApprovals += 1;
-          if (reviewItems.length < 5) {
+
+          const revKey = findEstimatedGainedRevenueKey(row);
+          if (revKey) {
+            const rv = row[revKey];
+            const rn = parseLooseNumber(rv);
+            if (!Number.isNaN(rn)) {
+              pendingPotentialRevenue += rn;
+              hasPendingPotentialRevenue = true;
+            }
+          }
+
+          if (reviewItems.length < 50) {
             reviewItems.push({
               desc: desc || 'Item',
               delta: (!Number.isNaN(delta) ? delta : (!Number.isNaN(cur) && !Number.isNaN(rec) ? (rec - cur) : null))
@@ -951,6 +1119,7 @@
 
       return {
         projectedUplift,
+        pendingPotentialRevenue: hasPendingPotentialRevenue ? pendingPotentialRevenue : null,
         realizedUplift: null,
         pendingApprovals,
         marginRiskAlerts: null,
@@ -978,11 +1147,12 @@
       if (microburstsLastRun) microburstsLastRun.textContent = 'Not run yet';
 
       if (reviewEmpty && reviewList) {
-        if (m.reviewItems && m.reviewItems.length) {
+        const reviewTop = (m.reviewItems || []).slice(0, 5);
+        if (reviewTop.length) {
           reviewEmpty.style.display = 'none';
           reviewList.style.display = 'grid';
           reviewList.innerHTML = '';
-          m.reviewItems.forEach(item => {
+          reviewTop.forEach(item => {
             const li = document.createElement('li');
             const left = document.createElement('span');
             left.className = 'primary';
@@ -999,6 +1169,8 @@
           reviewList.innerHTML = '';
         }
       }
+
+      updateMicroburstsSideRail(data);
     }
 
     function normalizeKey(k) {
@@ -1024,7 +1196,7 @@
 
     function buildTable(rows) {
       if (!Array.isArray(rows) || rows.length === 0) return '<p class="state empty">No rows to display.</p>';
-      const allKeys = [...new Set(rows.flatMap(r => Object.keys(r)))];
+      const allKeys = [...new Set(rows.flatMap(r => Object.keys(r)))].filter(k => !isHiddenDataKey(k));
       const summaryKeys = [];
       const order = SUMMARY_CONFIG.map(c => c.pattern);
       for (let i = 0; i < order.length; i++) {
@@ -1034,7 +1206,7 @@
       const hasSummary = summaryKeys.length > 0;
       const displayKeys = hasSummary ? summaryKeys : allKeys;
 
-      function renderTable(keysToShow, useSummaryFormat) {
+      function renderTable(keysToShow, useSummaryFormat, baseIndex) {
         let html = '<table><thead><tr>';
         keysToShow.forEach(k => {
           const summaryCol = getSummaryColumn(k);
@@ -1044,7 +1216,8 @@
         });
         html += '<th>Actions</th></tr></thead><tbody>';
         rows.forEach((row, rowIndex) => {
-          html += '<tr data-row-index="' + rowIndex + '">';
+          const absoluteIndex = (baseIndex || 0) + rowIndex;
+          html += '<tr data-row-index="' + absoluteIndex + '">';
           keysToShow.forEach(k => {
             const val = row[k];
             const summaryCol = useSummaryFormat ? getSummaryColumn(k) : null;
@@ -1054,15 +1227,15 @@
             if (isRecommendedPriceKey(k)) cls += ' highlight-recommended-price';
             html += '<td class="' + cls + '" title="' + escapeHtml(renderValue(val)) + '">' + escapeHtml(displayVal) + '</td>';
           });
-          html += '<td class="row-actions"><button type="button" class="btn btn-approve" data-action="approve" data-row-index="' + rowIndex + '">Approve</button><button type="button" class="btn btn-reject" data-action="reject" data-row-index="' + rowIndex + '">Reject</button></td>';
+          html += '<td class="row-actions"><button type="button" class="btn btn-approve" data-action="approve" data-row-index="' + absoluteIndex + '">Approve</button><button type="button" class="btn btn-reject" data-action="reject" data-row-index="' + absoluteIndex + '">Reject</button></td>';
           html += '</tr>';
         });
         html += '</tbody></table>';
         return html;
       }
 
-      const summaryTable = renderTable(displayKeys, hasSummary);
-      const fullTable = renderTable(allKeys, false);
+      const summaryTable = renderTable(displayKeys, hasSummary, 0);
+      const fullTable = renderTable(allKeys, false, 0);
       const showSeeAll = hasSummary && allKeys.length > summaryKeys.length;
       const seeAllHtml = showSeeAll ? '<div class="see-all-wrap"><button type="button" class="btn-see-all" data-toggle="see-all" aria-label="Show all columns">See all</button></div>' : '';
       return '<div class="data-view-summary" id="dataViewSummary">' + summaryTable + '</div>' +
@@ -1070,9 +1243,33 @@
         seeAllHtml;
     }
 
+    function buildTablePaged(allRows, pageIndex) {
+      const total = allRows.length;
+      const maxPage = Math.max(1, Math.ceil(total / PAGE_SIZE));
+      const clampedPage = Math.min(Math.max(0, pageIndex || 0), maxPage - 1);
+      const start = clampedPage * PAGE_SIZE;
+      const slice = allRows.slice(start, start + PAGE_SIZE);
+
+      function withBaseIndex(html) {
+        return html.replace(/data-row-index="(\d+)"/g, (m, n) => 'data-row-index="' + (parseInt(n, 10) + start) + '"');
+      }
+
+      const tableHtml = withBaseIndex(buildTable(slice));
+      const pager =
+        '<div class="see-all-wrap" style="display:flex;justify-content:space-between;align-items:center;gap:0.75rem;">' +
+        '<button type="button" class="btn btn-secondary" data-page-action="prev" ' + (clampedPage === 0 ? 'disabled' : '') + '>Prev</button>' +
+        '<div style="color:var(--text-muted);font-size:0.85rem;">' +
+          'Showing <strong>' + (total ? (start + 1) : 0) + '</strong>-<strong>' + Math.min(start + PAGE_SIZE, total) + '</strong> of <strong>' + total + '</strong>' +
+        '</div>' +
+        '<button type="button" class="btn btn-secondary" data-page-action="next" ' + (clampedPage >= maxPage - 1 ? 'disabled' : '') + '>Next</button>' +
+        '</div>';
+
+      return tableHtml + pager;
+    }
+
     function buildCards(items) {
       if (!Array.isArray(items) || items.length === 0) return '<p class="state empty">No items.</p>';
-      const allKeys = [...new Set(items.flatMap(item => Object.keys(item)))];
+      const allKeys = [...new Set(items.flatMap(item => Object.keys(item)))].filter(k => !isHiddenDataKey(k));
       const summaryKeys = SUMMARY_CONFIG.map(c => allKeys.find(k => c.pattern.test(normalizeKey(k)))).filter(Boolean);
       const hasSummary = summaryKeys.length > 0;
       const displayKeys = hasSummary ? summaryKeys : allKeys;
@@ -1109,7 +1306,7 @@
       const entries = Object.entries(obj);
       if (entries.length === 0) return '<p class="state empty">Empty object.</p>';
       let html = '<div class="cards-grid"><div class="item-card" style="max-width: 640px;"><h3>Data</h3><ul class="kv-list">';
-      entries.forEach(([k, v]) => {
+      entries.filter(([k]) => !isHiddenDataKey(k)).forEach(([k, v]) => {
         const liCls = isRecommendedPriceKey(k) ? ' highlight-recommended-price' : '';
         html += '<li class="' + liCls + '"><span class="k">' + escapeHtml(k) + '</span><span class="v">' + escapeHtml(renderValue(v, k)) + '</span></li>';
       });
@@ -1131,10 +1328,14 @@
       return false;
     }
 
+    function isHiddenDataKey(key) {
+      return normalizeKey(key) === 'action';
+    }
+
     function decideView(data) {
       if (Array.isArray(data)) {
         const first = data[0];
-        if (first !== null && typeof first === 'object' && !Array.isArray(first)) return buildTable(data);
+        if (first !== null && typeof first === 'object' && !Array.isArray(first)) return buildTablePaged(data, currentPage);
         return buildCards(data.map((item, i) => ({ '#': i + 1, value: item })));
       }
       if (data !== null && typeof data === 'object') return buildObjectView(data);
@@ -1149,6 +1350,7 @@
       }
       setState('loading', '<div class="spinner"></div> Loading...');
       meta.textContent = '';
+      currentPage = 0;
 
       try {
         const res = await fetch(url, { method: 'GET', headers: { Accept: 'application/json' } });
@@ -1178,6 +1380,10 @@
         updateRevenueSummary(data);
         updateDashboard(data);
         showOutput(decideView(data));
+
+        const rows = Array.isArray(data) ? data : (data && typeof data === 'object' ? [data] : []);
+        const potential = getEstimatedGainedRevenue(rows);
+        addCampaignLog('Microbursts refreshed (' + rows.length + ' items, potential ' + (potential == null ? '—' : formatRevenue(potential)) + ')');
       } catch (err) {
         meta.textContent = '';
         const msg = err.message || String(err);
@@ -1240,6 +1446,7 @@
         const text = await res.text();
         if (res.ok) {
           meta.innerHTML = 'Row ' + (rowIndex + 1) + ': <strong>' + action + '</strong> at ' + new Date().toLocaleString() + ' — Status: <strong>' + res.status + '</strong>';
+          addCampaignLog((action === 'approve' ? 'Approved: ' : 'Rejected: ') + getRowDescription(row));
           fetchData();
         } else {
           meta.innerHTML = 'Action failed: <strong>' + res.status + ' ' + res.statusText + '</strong>' + (text ? ' — ' + escapeHtml(text.slice(0, 200)) : '');
@@ -1252,6 +1459,14 @@
     }
 
     output.addEventListener('click', (e) => {
+      const pageBtn = e.target.closest('[data-page-action]');
+      if (pageBtn && Array.isArray(lastData)) {
+        const action = pageBtn.getAttribute('data-page-action');
+        if (action === 'prev') currentPage = Math.max(0, currentPage - 1);
+        else if (action === 'next') currentPage = currentPage + 1;
+        showOutput(decideView(lastData));
+        return;
+      }
       const rowActionBtn = e.target.closest('[data-action="approve"], [data-action="reject"]');
       if (rowActionBtn && rowActionBtn.dataset.rowIndex !== undefined) {
         sendRowAction(rowActionBtn.dataset.action, parseInt(rowActionBtn.dataset.rowIndex, 10));
@@ -1284,6 +1499,7 @@
     urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') fetchData(); });
 
     // Auto-fetch when the page loads
+    renderCampaignLog();
     fetchData();
   </script>
 </body>
