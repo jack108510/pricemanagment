@@ -33,6 +33,93 @@
       margin: 0 auto;
       padding: 1.5rem;
     }
+
+    /* ===== NEW: SaaS dashboard layout (sidebar + views) ===== */
+    .app-container { display: flex; min-height: 100vh; width: 100%; }
+    .sidebar { width: 240px; flex: 0 0 240px; background: rgba(0,0,0,0.18); border-right: 1px solid var(--border); padding: 1.25rem 1rem; display: flex; flex-direction: column; gap: 1.25rem; }
+    .sidebar-brand { display: flex; align-items: center; gap: 0.75rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .sidebar-brand img { height: 36px; width: auto; display: block; }
+    .sidebar-brand .title { font-size: 1rem; font-weight: 700; color: var(--text); letter-spacing: 0.02em; }
+    .nav { display: flex; flex-direction: column; gap: 0.25rem; }
+    .nav a { text-decoration: none; color: var(--text-muted); padding: 0.6rem 0.75rem; border-radius: 10px; border: 1px solid transparent; font-weight: 600; font-size: 0.9rem; display: flex; align-items: center; gap: 0.6rem; cursor: pointer; user-select: none; }
+    .nav a:hover { background: rgba(255,255,255,0.04); color: var(--text); }
+    .nav a.active { background: rgba(45, 212, 191, 0.14); border-color: rgba(45, 212, 191, 0.35); color: var(--text); }
+    .nav a .dot { width: 8px; height: 8px; border-radius: 999px; background: var(--border); flex: 0 0 8px; }
+    .nav a.active .dot { background: var(--accent); }
+    .main-content { flex: 1; min-width: 0; padding: 2rem; }
+    .view { display: none; }
+    .view.active { display: block; }
+    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.25rem; padding-bottom: 1rem; border-bottom: 1px solid var(--border); }
+    .topbar .page-title { display: flex; align-items: center; gap: 0.75rem; min-height: 40px; }
+    .topbar h2 { margin: 0; font-size: 1.15rem; font-weight: 700; color: var(--text); }
+    .status-connected { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.35rem 0.6rem; border-radius: 999px; border: 1px solid rgba(45, 212, 191, 0.35); background: rgba(45, 212, 191, 0.12); color: var(--text); font-weight: 600; font-size: 0.8rem; user-select: none; }
+    .status-connected .pill { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); }
+    .url-wrap.hidden-url { display: none; }
+
+    .sidebar-toggle { display: none; }
+    .mobile-menu-btn { display: none; }
+    .sidebar-overlay { display: none; }
+
+    .section { margin-top: 1.25rem; }
+    .section-header { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.75rem; }
+    .section-title { margin: 0; font-size: 0.95rem; font-weight: 700; color: var(--text); }
+    .link-btn { background: none; border: none; color: var(--text-muted); cursor: pointer; font-size: 0.85rem; text-decoration: underline; text-underline-offset: 2px; padding: 0; }
+    .link-btn:hover { color: var(--text); }
+
+    .kpi-row { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem; }
+    .kpi-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; cursor: default; user-select: none; }
+    .kpi-card.clickable { cursor: pointer; }
+    .kpi-card.clickable:hover { border-color: rgba(45, 212, 191, 0.45); }
+    .kpi-label { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; letter-spacing: 0.02em; margin-bottom: 0.5rem; }
+    .kpi-value { font-family: 'JetBrains Mono', monospace; font-size: 1.6rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+    .kpi-subtext { margin-top: 0.55rem; font-size: 0.85rem; color: var(--text-muted); }
+
+    .campaign-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem; }
+    .campaign-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; cursor: default; }
+    .campaign-card.clickable { cursor: pointer; }
+    .campaign-card.clickable:hover { border-color: rgba(45, 212, 191, 0.45); }
+    .campaign-top { display: flex; align-items: center; justify-content: space-between; gap: 0.75rem; margin-bottom: 0.85rem; }
+    .campaign-name { font-weight: 800; color: var(--text); font-size: 0.95rem; margin: 0; }
+    .badge { display: inline-flex; align-items: center; padding: 0.2rem 0.5rem; border-radius: 999px; border: 1px solid var(--border); font-size: 0.75rem; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.02); }
+    .badge.active { border-color: rgba(45, 212, 191, 0.35); color: var(--text); background: rgba(45, 212, 191, 0.1); }
+    .badge.draft { border-color: rgba(148, 163, 184, 0.25); }
+    .campaign-metrics { display: grid; grid-template-columns: 1fr; gap: 0.45rem; margin: 0; padding: 0; list-style: none; }
+    .campaign-metrics li { display: flex; justify-content: space-between; gap: 0.75rem; color: var(--text-muted); font-size: 0.85rem; }
+    .campaign-metrics strong { color: var(--text); font-weight: 700; font-family: 'JetBrains Mono', monospace; }
+
+    .panels { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0.9rem; }
+    .panel { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; }
+    .panel-list { margin: 0; padding: 0; list-style: none; display: grid; gap: 0.55rem; }
+    .panel-list li { display: flex; justify-content: space-between; gap: 0.75rem; color: var(--text-muted); font-size: 0.85rem; padding-bottom: 0.55rem; border-bottom: 1px solid var(--border); }
+    .panel-list li:last-child { border-bottom: none; padding-bottom: 0; }
+    .panel-list .primary { color: var(--text); font-weight: 650; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .panel-empty { color: var(--text-muted); font-size: 0.9rem; padding: 0.25rem 0; }
+
+    .subpage { margin-top: 1rem; }
+
+    .projects-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 0.9rem; }
+    .project-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 1rem 1.1rem; cursor: pointer; user-select: none; }
+    .project-card:hover { border-color: rgba(45, 212, 191, 0.45); }
+    .project-card.active { background: rgba(45, 212, 191, 0.14); border-color: rgba(45, 212, 191, 0.35); }
+    .project-card .project-name { margin: 0 0 0.35rem 0; font-weight: 800; color: var(--text); font-size: 0.95rem; }
+    .project-card .project-desc { margin: 0; color: var(--text-muted); font-size: 0.85rem; }
+    .project-view { display: none; }
+    .project-view.active { display: block; }
+
+    @media (max-width: 1024px) {
+      .kpi-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .campaign-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .projects-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+    @media (max-width: 720px) {
+      .mobile-menu-btn { display: inline-flex; align-items: center; justify-content: center; }
+      .sidebar { position: fixed; left: 0; top: 0; bottom: 0; transform: translateX(-100%); transition: transform 0.2s ease; z-index: 50; box-shadow: 16px 0 40px rgba(0,0,0,0.35); }
+      .main-content { padding: 1.25rem; }
+      .panels { grid-template-columns: 1fr; }
+      #sidebarToggle:checked ~ .sidebar { transform: translateX(0); }
+      #sidebarToggle:checked ~ .sidebar-overlay { display: block; }
+      .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 40; }
+    }
     header {
       display: flex;
       align-items: center;
@@ -323,45 +410,246 @@
   </style>
 </head>
 <body>
-  <div class="container">
-    <header>
-      <div class="brand">
+  <!-- ===== NEW: App container with sidebar + views ===== -->
+  <div class="app-container">
+    <input type="checkbox" id="sidebarToggle" class="sidebar-toggle" />
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-brand">
         <img src="cliniciq-logo.png" alt="CLINICIQ" />
-        <h1>CLINICIQ</h1>
+        <div class="title">CLINICIQ</div>
       </div>
-      <div class="controls">
-        <div class="url-wrap">
-          <input type="url" id="url" placeholder="https://your-n8n.app/webhook/..." value="https://jackwilde.app.n8n.cloud/webhook/01f57583-f041-45e2-816a-e9e08c200eae" />
+
+      <nav class="nav" id="sidebarNav">
+        <a href="#" class="active" data-view="dashboard-view"><span class="dot"></span>Dashboard</a>
+        <a href="#" data-view="campaigns-view"><span class="dot"></span>Campaigns</a>
+        <a href="#" data-view="analytics-view"><span class="dot"></span>Analytics</a>
+        <a href="#" data-view="settings-view"><span class="dot"></span>Settings</a>
+      </nav>
+    </aside>
+
+    <label for="sidebarToggle" class="sidebar-overlay" aria-label="Close navigation"></label>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div class="page-title">
+          <h2 id="pageTitle">Dashboard</h2>
+          <span class="status-connected" title="Webhook connected"><span class="pill"></span>Connected</span>
         </div>
-        <button type="button" class="btn btn-primary" id="fetchBtn">Refresh data</button>
-        <button type="button" class="btn btn-secondary" id="rawBtn">Show raw JSON</button>
-        <button type="button" class="btn btn-approve" id="approveBtn" disabled>Approve</button>
-        <button type="button" class="btn btn-reject" id="rejectBtn" disabled>Reject</button>
-        <div class="refresh-wrap">
-          <input type="checkbox" id="autoRefresh" />
-          <label for="autoRefresh">Auto-refresh (30s)</label>
+
+        <div class="controls">
+          <label for="sidebarToggle" class="btn btn-secondary mobile-menu-btn">Menu</label>
+          <!-- Webhook URL kept for existing logic but hidden from UI -->
+          <div class="url-wrap hidden-url">
+            <input type="url" id="url" placeholder="https://your-n8n.app/webhook/..." value="https://jackwilde.app.n8n.cloud/webhook/01f57583-f041-45e2-816a-e9e08c200eae" />
+          </div>
+          <div class="refresh-wrap">
+            <input type="checkbox" id="autoRefresh" />
+            <label for="autoRefresh">Auto-refresh (30s)</label>
+          </div>
         </div>
       </div>
-    </header>
 
-    <p class="meta" id="meta"></p>
+      <p class="meta" id="meta"></p>
 
-    <div class="revenue-summary card" id="revenueSummary">
-      <span class="label">Estimated gained revenue</span>
-      <span class="value" id="revenueValue">—</span>
-    </div>
+      <div id="dashboard-view" class="view active">
+        <!-- ===== NEW: Dashboard Executive View ===== -->
+        <div class="section">
+          <div class="kpi-row">
+            <div class="kpi-card" id="kpiProjected">
+              <div class="kpi-label">Projected Uplift</div>
+              <div class="kpi-value" id="kpiProjectedValue">Not yet tracked</div>
+              <div class="kpi-subtext">Across active campaigns</div>
+            </div>
 
-    <div class="card" id="contentCard">
-      <div class="state" id="state">
-        Data loads automatically when the page opens. Use <strong>Refresh data</strong> to fetch again. Make sure your n8n workflow responds to <strong>GET</strong> if you want to pull data here.
+            <div class="kpi-card" id="kpiRealized">
+              <div class="kpi-label">Realized Uplift</div>
+              <div class="kpi-value" id="kpiRealizedValue">Not yet tracked</div>
+              <div class="kpi-subtext">Last 30 days</div>
+            </div>
+
+            <div class="kpi-card clickable" id="kpiPending" data-go-view="campaigns-view">
+              <div class="kpi-label">Pending Approvals</div>
+              <div class="kpi-value" id="kpiPendingValue">Not yet tracked</div>
+              <div class="kpi-subtext">Items requiring review</div>
+            </div>
+
+            <div class="kpi-card clickable" id="kpiAlerts" data-go-view="analytics-view">
+              <div class="kpi-label">Margin Risk Alerts</div>
+              <div class="kpi-value" id="kpiAlertsValue">Not yet tracked</div>
+              <div class="kpi-subtext">Cost or margin anomalies</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <h3 class="section-title">Active Campaigns</h3>
+          </div>
+          <div class="campaign-grid">
+            <div class="campaign-card">
+              <div class="campaign-top">
+                <div class="campaign-name">99¢ Optimization</div>
+                <span class="badge draft">Draft</span>
+              </div>
+              <ul class="campaign-metrics">
+                <li><span>Projected uplift</span><strong>—</strong></li>
+                <li><span>Items affected</span><strong>—</strong></li>
+                <li><span>Last run</span><strong>Not run yet</strong></li>
+              </ul>
+            </div>
+
+            <div class="campaign-card clickable" id="microburstsCampaignCard" data-go-view="campaigns-view">
+              <div class="campaign-top">
+                <div class="campaign-name">Microbursts</div>
+                <span class="badge active">Active</span>
+              </div>
+              <ul class="campaign-metrics">
+                <li><span>Projected uplift</span><strong id="microburstsProjected">—</strong></li>
+                <li><span>Items affected</span><strong id="microburstsItems">—</strong></li>
+                <li><span>Last run</span><strong id="microburstsLastRun">Not run yet</strong></li>
+              </ul>
+            </div>
+
+            <div class="campaign-card">
+              <div class="campaign-top">
+                <div class="campaign-name">Prescription Optimization</div>
+                <span class="badge draft">Draft</span>
+              </div>
+              <ul class="campaign-metrics">
+                <li><span>Projected uplift</span><strong>—</strong></li>
+                <li><span>Items affected</span><strong>—</strong></li>
+                <li><span>Last run</span><strong>Not run yet</strong></li>
+              </ul>
+            </div>
+
+            <div class="campaign-card">
+              <div class="campaign-top">
+                <div class="campaign-name">Alternative Purchasing</div>
+                <span class="badge draft">Draft</span>
+              </div>
+              <ul class="campaign-metrics">
+                <li><span>Projected uplift</span><strong>—</strong></li>
+                <li><span>Items affected</span><strong>—</strong></li>
+                <li><span>Last run</span><strong>Not run yet</strong></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div class="section-header">
+            <h3 class="section-title">Attention Needed</h3>
+          </div>
+          <div class="panels">
+            <div class="panel">
+              <div class="section-header">
+                <h3 class="section-title">Items Requiring Review</h3>
+                <button type="button" class="link-btn" id="viewAllApprovalsBtn">View All</button>
+              </div>
+              <div id="reviewEmpty" class="panel-empty">No items yet.</div>
+              <ul class="panel-list" id="reviewList" style="display:none;"></ul>
+            </div>
+
+            <div class="panel">
+              <div class="section-header">
+                <h3 class="section-title">Recent Cost Changes</h3>
+                <button type="button" class="link-btn" id="viewAllAnalyticsBtn">View All</button>
+              </div>
+              <ul class="panel-list" id="costChangeList">
+                <li><span class="primary">Cost updates feed</span><span>Coming soon</span></li>
+                <li><span class="primary">Margin anomalies</span><span>Coming soon</span></li>
+                <li><span class="primary">Supplier changes</span><span>Coming soon</span></li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </div>
-      <div id="output" class="table-wrap" style="display: none;"></div>
-      <div id="rawOutput" class="raw-json" style="display: none;"></div>
-    </div>
 
-    <p class="note">
-      This page sends a <strong>GET</strong> request to the URL. If your webhook only accepts POST, configure an n8n workflow that runs on GET and returns the data you want to display, or use a separate "read" endpoint that returns JSON.
-    </p>
+      <div id="campaigns-view" class="view">
+        <!-- ===== NEW: Campaigns view (Microbursts moved here) ===== -->
+        <div class="section">
+          <div class="section-header">
+            <h3 class="section-title">Projects</h3>
+          </div>
+
+          <div class="projects-grid" id="projectsGrid">
+            <div class="project-card active" data-project="microbursts" role="button" tabindex="0">
+              <h4 class="project-name">Microbursts</h4>
+              <p class="project-desc">In-flight recommendations and approvals</p>
+            </div>
+
+            <div class="project-card" data-project="ninety-nine" role="button" tabindex="0">
+              <h4 class="project-name">99¢ Optimization</h4>
+              <p class="project-desc">Draft</p>
+            </div>
+
+            <div class="project-card" data-project="prescription" role="button" tabindex="0">
+              <h4 class="project-name">Prescription Optimization</h4>
+              <p class="project-desc">Draft</p>
+            </div>
+
+            <div class="project-card" data-project="purchasing" role="button" tabindex="0">
+              <h4 class="project-name">Alternative Purchasing</h4>
+              <p class="project-desc">Draft</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <div id="project-microbursts" class="project-view active" data-project-view="microbursts">
+            <div class="revenue-summary card" id="revenueSummary">
+              <span class="label">Estimated gained revenue</span>
+              <span class="value" id="revenueValue">—</span>
+            </div>
+
+            <div id="microbursts-page" class="subpage">
+              <!-- ===== NEW: Microbursts page wrapper (existing logic preserved) ===== -->
+              <div class="card" id="contentCard">
+                <div class="state" id="state">
+                  Data loads automatically when the page opens. Use <strong>Refresh data</strong> to fetch again. Make sure your n8n workflow responds to <strong>GET</strong> if you want to pull data here.
+                </div>
+                <div id="output" class="table-wrap" style="display: none;"></div>
+                <div id="rawOutput" class="raw-json" style="display: none;"></div>
+              </div>
+            </div>
+
+            <p class="note">
+              This page sends a <strong>GET</strong> request to the URL. If your webhook only accepts POST, configure an n8n workflow that runs on GET and returns the data you want to display, or use a separate "read" endpoint that returns JSON.
+            </p>
+          </div>
+
+          <div id="project-ninety-nine" class="project-view" data-project-view="ninety-nine">
+            <div class="card">
+              <div class="state empty">99¢ Optimization project is coming soon.</div>
+            </div>
+          </div>
+
+          <div id="project-prescription" class="project-view" data-project-view="prescription">
+            <div class="card">
+              <div class="state empty">Prescription Optimization project is coming soon.</div>
+            </div>
+          </div>
+
+          <div id="project-purchasing" class="project-view" data-project-view="purchasing">
+            <div class="card">
+              <div class="state empty">Alternative Purchasing project is coming soon.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="analytics-view" class="view">
+        <div class="card">
+          <div class="state empty">Analytics is coming soon.</div>
+        </div>
+      </div>
+
+      <div id="settings-view" class="view">
+        <div class="card">
+          <div class="state empty">Settings is coming soon.</div>
+        </div>
+      </div>
+    </main>
   </div>
 
   <script>
@@ -379,8 +667,115 @@
     const approveBtn = document.getElementById('approveBtn');
     const rejectBtn = document.getElementById('rejectBtn');
 
+    /* ===== NEW: View switching + executive dashboard elements ===== */
+    const sidebarNav = document.getElementById('sidebarNav');
+    const pageTitle = document.getElementById('pageTitle');
+    const microburstsCampaignCard = document.getElementById('microburstsCampaignCard');
+    const viewAllApprovalsBtn = document.getElementById('viewAllApprovalsBtn');
+    const viewAllAnalyticsBtn = document.getElementById('viewAllAnalyticsBtn');
+
+    const kpiProjectedValue = document.getElementById('kpiProjectedValue');
+    const kpiRealizedValue = document.getElementById('kpiRealizedValue');
+    const kpiPendingValue = document.getElementById('kpiPendingValue');
+    const kpiAlertsValue = document.getElementById('kpiAlertsValue');
+
+    const microburstsProjected = document.getElementById('microburstsProjected');
+    const microburstsItems = document.getElementById('microburstsItems');
+    const microburstsLastRun = document.getElementById('microburstsLastRun');
+
+    const reviewEmpty = document.getElementById('reviewEmpty');
+    const reviewList = document.getElementById('reviewList');
+
+    const projectsGrid = document.getElementById('projectsGrid');
+
     let lastData = null;
     let refreshTimer = null;
+
+    /* ===== NEW: Minimal JS view switching ===== */
+    function showView(viewId) {
+      document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+      const el = document.getElementById(viewId);
+      if (el) el.classList.add('active');
+
+      document.querySelectorAll('#sidebarNav a').forEach(a => a.classList.remove('active'));
+      const activeLink = document.querySelector('#sidebarNav a[data-view="' + viewId + '"]');
+      if (activeLink) activeLink.classList.add('active');
+
+      if (pageTitle) {
+        if (viewId === 'dashboard-view') pageTitle.textContent = 'Dashboard';
+        else if (viewId === 'campaigns-view') pageTitle.textContent = 'Campaigns';
+        else if (viewId === 'analytics-view') pageTitle.textContent = 'Analytics';
+        else if (viewId === 'settings-view') pageTitle.textContent = 'Settings';
+      }
+
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      if (sidebarToggle) sidebarToggle.checked = false;
+    }
+
+    if (sidebarNav) {
+      sidebarNav.addEventListener('click', (e) => {
+        const a = e.target.closest('a[data-view]');
+        if (!a) return;
+        e.preventDefault();
+        showView(a.dataset.view);
+      });
+    }
+
+    document.querySelectorAll('[data-go-view]').forEach(el => {
+      el.addEventListener('click', () => {
+        const v = el.getAttribute('data-go-view');
+        if (v) showView(v);
+      });
+    });
+
+    if (microburstsCampaignCard) {
+      microburstsCampaignCard.addEventListener('click', () => {
+        showView('campaigns-view');
+        showCampaignProject('microbursts');
+        const mb = document.getElementById('microbursts-page');
+        if (mb) mb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    if (viewAllApprovalsBtn) {
+      viewAllApprovalsBtn.addEventListener('click', () => {
+        showView('campaigns-view');
+        showCampaignProject('microbursts');
+        const mb = document.getElementById('microbursts-page');
+        if (mb) mb.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    }
+
+    if (viewAllAnalyticsBtn) {
+      viewAllAnalyticsBtn.addEventListener('click', () => {
+        showView('analytics-view');
+      });
+    }
+
+    function showCampaignProject(projectId) {
+      document.querySelectorAll('#projectsGrid .project-card').forEach(c => c.classList.remove('active'));
+      const activeCard = document.querySelector('#projectsGrid .project-card[data-project="' + projectId + '"]');
+      if (activeCard) activeCard.classList.add('active');
+
+      document.querySelectorAll('#campaigns-view [data-project-view]').forEach(v => v.classList.remove('active'));
+      const viewEl = document.querySelector('#campaigns-view [data-project-view="' + projectId + '"]');
+      if (viewEl) viewEl.classList.add('active');
+    }
+
+    if (projectsGrid) {
+      projectsGrid.addEventListener('click', (e) => {
+        const card = e.target.closest('.project-card[data-project]');
+        if (!card) return;
+        showCampaignProject(card.getAttribute('data-project'));
+      });
+
+      projectsGrid.addEventListener('keydown', (e) => {
+        if (e.key !== 'Enter') return;
+        const card = e.target.closest('.project-card[data-project]');
+        if (!card) return;
+        showCampaignProject(card.getAttribute('data-project'));
+      });
+    }
 
     function setState(type, message) {
       state.className = 'state ' + type;
@@ -393,8 +788,8 @@
     }
 
     function setApproveRejectEnabled(enabled) {
-      approveBtn.disabled = !enabled;
-      rejectBtn.disabled = !enabled;
+      if (approveBtn) approveBtn.disabled = !enabled;
+      if (rejectBtn) rejectBtn.disabled = !enabled;
     }
 
     function showOutput(html) {
@@ -508,6 +903,102 @@
       revenueValue.textContent = formatRevenue(rev);
       if (rev != null) revenueSummary.classList.add('visible');
       else revenueSummary.classList.remove('visible');
+    }
+
+    /* ===== NEW: Executive dashboard metric computation (safe defaults) ===== */
+    function computeDashboardMetrics(data) {
+      const rows = Array.isArray(data) ? data : (data && typeof data === 'object' ? [data] : []);
+      const projectedUplift = getEstimatedGainedRevenue(data);
+
+      function findKeyByNormalized(row, normalizedName) {
+        if (!row || typeof row !== 'object') return null;
+        for (const k of Object.keys(row)) {
+          if (normalizeKey(k) === normalizedName) return k;
+        }
+        return null;
+      }
+
+      let pendingApprovals = 0;
+      const reviewItems = [];
+
+      for (const row of rows) {
+        if (!row || typeof row !== 'object') continue;
+
+        const descKey = findKeyByNormalized(row, 'itemdescription') || findKeyByNormalized(row, 'description');
+        const curKey = findKeyByNormalized(row, 'currentprice');
+        const recKey = findKeyByNormalized(row, 'recommendedprice');
+        const deltaKey = findKeyByNormalized(row, 'pricedelta');
+
+        const desc = descKey ? String(row[descKey] ?? '') : '';
+        const cur = curKey != null ? parseFloat(row[curKey]) : NaN;
+        const rec = recKey != null ? parseFloat(row[recKey]) : NaN;
+        const delta = deltaKey != null ? parseFloat(row[deltaKey]) : NaN;
+
+        let pct = null;
+        if (!Number.isNaN(delta) && !Number.isNaN(cur) && cur !== 0) pct = Math.abs(delta / cur);
+        else if (!Number.isNaN(cur) && !Number.isNaN(rec) && cur !== 0) pct = Math.abs((rec - cur) / cur);
+
+        if (pct != null && pct > 0.05) {
+          pendingApprovals += 1;
+          if (reviewItems.length < 5) {
+            reviewItems.push({
+              desc: desc || 'Item',
+              delta: (!Number.isNaN(delta) ? delta : (!Number.isNaN(cur) && !Number.isNaN(rec) ? (rec - cur) : null))
+            });
+          }
+        }
+      }
+
+      return {
+        projectedUplift,
+        realizedUplift: null,
+        pendingApprovals,
+        marginRiskAlerts: null,
+        microburstsItems: rows.length,
+        reviewItems
+      };
+    }
+
+    function formatCount(val) {
+      if (val === null || val === undefined) return 'Not yet tracked';
+      if (typeof val !== 'number' || Number.isNaN(val)) return 'Not yet tracked';
+      return String(val.toLocaleString('en-US'));
+    }
+
+    function updateDashboard(data) {
+      const m = computeDashboardMetrics(data);
+
+      if (kpiProjectedValue) kpiProjectedValue.textContent = m.projectedUplift == null ? 'Not yet tracked' : formatRevenue(m.projectedUplift);
+      if (kpiRealizedValue) kpiRealizedValue.textContent = 'Not yet tracked';
+      if (kpiPendingValue) kpiPendingValue.textContent = m.pendingApprovals == null ? 'Not yet tracked' : formatCount(m.pendingApprovals);
+      if (kpiAlertsValue) kpiAlertsValue.textContent = 'Not yet tracked';
+
+      if (microburstsProjected) microburstsProjected.textContent = m.projectedUplift == null ? '—' : formatRevenue(m.projectedUplift);
+      if (microburstsItems) microburstsItems.textContent = m.microburstsItems ? String(m.microburstsItems.toLocaleString('en-US')) : '—';
+      if (microburstsLastRun) microburstsLastRun.textContent = 'Not run yet';
+
+      if (reviewEmpty && reviewList) {
+        if (m.reviewItems && m.reviewItems.length) {
+          reviewEmpty.style.display = 'none';
+          reviewList.style.display = 'grid';
+          reviewList.innerHTML = '';
+          m.reviewItems.forEach(item => {
+            const li = document.createElement('li');
+            const left = document.createElement('span');
+            left.className = 'primary';
+            left.textContent = item.desc;
+            const right = document.createElement('span');
+            right.textContent = (item.delta == null || Number.isNaN(item.delta)) ? '—' : formatCurrency(item.delta);
+            li.appendChild(left);
+            li.appendChild(right);
+            reviewList.appendChild(li);
+          });
+        } else {
+          reviewEmpty.style.display = 'block';
+          reviewList.style.display = 'none';
+          reviewList.innerHTML = '';
+        }
+      }
     }
 
     function normalizeKey(k) {
@@ -685,6 +1176,7 @@
         }
 
         updateRevenueSummary(data);
+        updateDashboard(data);
         showOutput(decideView(data));
       } catch (err) {
         meta.textContent = '';
@@ -696,8 +1188,8 @@
     async function sendAction(action) {
       const url = urlInput.value.trim();
       if (!url || lastData === null) return;
-      approveBtn.disabled = true;
-      rejectBtn.disabled = true;
+      if (approveBtn) approveBtn.disabled = true;
+      if (rejectBtn) rejectBtn.disabled = true;
       const prevMeta = meta.innerHTML;
       meta.innerHTML = 'Sending <strong>' + action + '</strong>…';
       try {
@@ -720,13 +1212,15 @@
       }
     }
 
-    fetchBtn.addEventListener('click', fetchData);
-    rawBtn.addEventListener('click', () => {
-      if (lastData !== null) showRaw(typeof lastData === 'string' ? lastData : JSON.stringify(lastData, null, 2));
-      else setState('empty', 'Refresh data first, then use Show raw JSON.');
-    });
-    approveBtn.addEventListener('click', () => sendAction('approve'));
-    rejectBtn.addEventListener('click', () => sendAction('reject'));
+    if (fetchBtn) fetchBtn.addEventListener('click', fetchData);
+    if (rawBtn) {
+      rawBtn.addEventListener('click', () => {
+        if (lastData !== null) showRaw(typeof lastData === 'string' ? lastData : JSON.stringify(lastData, null, 2));
+        else setState('empty', 'Refresh data first, then use Show raw JSON.');
+      });
+    }
+    if (approveBtn) approveBtn.addEventListener('click', () => sendAction('approve'));
+    if (rejectBtn) rejectBtn.addEventListener('click', () => sendAction('reject'));
 
     async function sendRowAction(action, rowIndex) {
       if (!Array.isArray(lastData) || lastData[rowIndex] === undefined) return;
