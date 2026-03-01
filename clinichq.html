@@ -216,10 +216,11 @@
     }
     .btn-approve:hover:not(:disabled) { background: var(--accent-dim); }
     .btn-reject {
-      background: var(--danger);
-      color: #fff;
+      background: #ffffff;
+      color: #0c1445;
+      border: 1px solid rgba(148, 163, 184, 0.35);
     }
-    .btn-reject:hover:not(:disabled) { background: #dc2626; }
+    .btn-reject:hover:not(:disabled) { background: #f1f5f9; }
     .btn:disabled {
       opacity: 0.5;
       cursor: not-allowed;
@@ -514,7 +515,7 @@
 
             <div class="campaign-card clickable" id="microburstsCampaignCard" data-go-view="campaigns-view">
               <div class="campaign-top">
-                <div class="campaign-name">Microbursts</div>
+                <div class="campaign-name">Micro Increases</div>
                 <span class="badge active">Active</span>
               </div>
               <ul class="campaign-metrics">
@@ -588,7 +589,7 @@
 
           <div class="projects-grid" id="projectsGrid">
             <div class="project-card active" data-project="microbursts" role="button" tabindex="0">
-              <h4 class="project-name">Microbursts</h4>
+              <h4 class="project-name">Micro Increases</h4>
               <p class="project-desc">In-flight recommendations and approvals</p>
             </div>
 
@@ -1383,7 +1384,7 @@
 
         const rows = Array.isArray(data) ? data : (data && typeof data === 'object' ? [data] : []);
         const potential = getEstimatedGainedRevenue(rows);
-        addCampaignLog('Microbursts refreshed (' + rows.length + ' items, potential ' + (potential == null ? '—' : formatRevenue(potential)) + ')');
+        addCampaignLog('Micro Increases refreshed (' + rows.length + ' items, potential ' + (potential == null ? '—' : formatRevenue(potential)) + ')');
       } catch (err) {
         meta.textContent = '';
         const msg = err.message || String(err);
